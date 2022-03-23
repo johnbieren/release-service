@@ -1,0 +1,29 @@
+name: Go Test on Pull Requests
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+jobs:
+  run-go-test:
+    name: Run Go Test
+    runs-on: ubuntu-latest
+    steps:
+        # I would have liked to store the checkout through
+        # build steps in one file and reference it, but I
+        # couldn't find a way to do it with GitHub actions.
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17 # This should match the version in go.mod
+      - name: Build
+        run: go build -v ./...
+      - name: Test
+        # Once we have passing tests for all our files, we
+        # can replace this with `go test ./...`. For now,
+        # controllers/suite_test.go doesn't pass in GitHub
+        # actions.
+        run: make test

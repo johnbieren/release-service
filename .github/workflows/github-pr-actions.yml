@@ -11,6 +11,7 @@ jobs:
     name: Run Go Test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Run setup
         uses: ./.github/actions/setup-go-env
       - name: Test

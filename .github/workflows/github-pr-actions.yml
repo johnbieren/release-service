@@ -1,0 +1,21 @@
+name: Go Test
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+    paths:
+      - helpers/**
+jobs:
+  run-go-test:
+    name: Run Go Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run setup
+        uses: ./.github/actions/setup-go-env.yml
+      - name: Test
+        # Once we have passing tests for all our files, we
+        # can replace this with `go test ./...`. For now,
+        # controllers/suite_test.go doesn't pass in GitHub
+        # actions.
+        run: pushd helpers/ ; go test -v . ; popd

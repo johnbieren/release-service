@@ -24,7 +24,7 @@ func init() {
 
 func TestHasAnnotation(t *testing.T) {
 	checkExistingAnnotation := HasAnnotation(testObject, "a.test/annotation")
-	if checkExistingAnnotation != true {
+	if checkExistingAnnotation != false {
 		t.Fatalf("HasAnnotation() failed to find existing annotation")
 	}
 

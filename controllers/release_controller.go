@@ -30,7 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// ReleaseReconciler reconciles a Release object
+// ReleaseReconciler reconciles a Release object TEST
 type ReleaseReconciler struct {
 	client.Client
 	Log                   logr.Logger

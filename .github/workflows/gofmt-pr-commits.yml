@@ -1,0 +1,12 @@
+name: Ensure pull requests obey gofmt via commit
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - '**.go'
+jobs:
+  run-go-fmt:
+    uses: ./.github/workflows/gofmt-check-workflow.yml

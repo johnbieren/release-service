@@ -1,0 +1,32 @@
+name: Ensure pull requests obey gofmt
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - '**.go'
+jobs:
+  run-go-fmt:
+    name: Run Go Fmt
+    runs-on: ubuntu-latest
+    steps:
+        # I would have liked to store the checkout through
+        # build steps in one file and reference it, but I
+        # couldn't find a way to do it with GitHub actions.
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17 # This should match the version in go.mod
+      - name: Run gofmt
+        run: |
+          unformatted_files=$(gofmt -l .)
+          if [ ! -z "$unformatted_files" ] ; then
+              echo "Some files are not properly formatted. Please run `go fmt` and amend your commit."
+              echo "$unformatted_files"
+              exit 1
+          fi
+        shell: bash

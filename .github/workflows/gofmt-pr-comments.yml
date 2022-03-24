@@ -1,0 +1,10 @@
+name: Ensure pull requests obey gofmt via comment
+on:
+  issue_comment:
+    types:
+      - opened
+      - edited
+jobs:
+  run-go-fmt:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/test-fmt')
+    uses: ./.github/workflows/gofmt-check-workflow.yml

@@ -27,6 +27,16 @@ func HasLabel(object client.Object, label string) bool {
 
 // HasLabelWithValue checks if a label exists and has the given value
 func HasLabelWithValue(object client.Object, label, value string) bool {
+
+
+
+
+
+
+
+
+
+
 	if labelValue, found := object.GetLabels()[label]; found && labelValue == value {
 		return true
 	}

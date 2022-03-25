@@ -8,13 +8,6 @@ func HasAnnotation(object client.Object, annotation string) bool {
 
 	return found
 
-
-
-
-
-
-
-
 }
 
 // HasAnnotationWithValue checks if an annotation exists and has the given value

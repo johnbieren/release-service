@@ -102,19 +102,6 @@ generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and
 fmt: ## Run go fmt against code.
 	go fmt ./...
 
-.PHONY: check_fmt
-check_fmt: ## Checks the formatting on files in repo
-  ifeq ($(shell command -v goimports 2> /dev/null),)
-	  $(error "goimports must be installed for this rule" && exit 1)
-  endif
-  ifeq ($(shell command -v addlicense 2> /dev/null),)
-	  $(error "error addlicense must be installed for this rule: go get -u github.com/google/addlicense")
-  endif
-
-	  if [[ $$(find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {} \;) != "" ]]; then \
-	    echo "Files not formatted; run 'make fmt'"; exit 1 ;\
-	  fi ;\
-
 .PHONY: vet
 vet: ## Run go vet against code.
 	go vet ./...

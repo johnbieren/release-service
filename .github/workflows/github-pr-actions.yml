@@ -7,4 +7,23 @@ on:
       - reopened
 jobs:
   go:
-    uses: johnbieren/application-service/.github/workflows/pr.yml@make_github_action_reusable
+    #uses: johnbieren/application-service/.github/workflows/pr.yml@make_github_action_reusable
+    name: Run Go Fmt
+    runs-on: ubuntu-latest
+    steps:
+        # I would have liked to store the checkout through
+        # build steps in one file and reference it, but I
+        # couldn't find a way to do it with GitHub actions.
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17 # This should match the version in go.mod
+      - name: Run gofmt
+        run: |
+          go get -u golang.org/x/tools/cmd/goimports
+          somevar=$(goimports -l)
+          echo $somevar
+          exit 1
+        shell: bash

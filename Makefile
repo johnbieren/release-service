@@ -111,6 +111,7 @@ check_fmt: ## Checks the formatting on files in repo
 	  $(error "error addlicense must be installed for this rule: go get -u github.com/google/addlicense")
   endif
 
+          find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {}
 	  if [[ $$(find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {} \;) != "" ]]; then \
 	    echo "Files not formatted; run 'make fmt'"; exit 1 ;\
 	  fi ;\

@@ -113,7 +113,7 @@ check_fmt: ## Checks the formatting on files in repo
 
           find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {}
 	  if [[ $$(find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {} \;) != "" ]]; then \
-	    echo "Files not formatted; run 'make fmt'"; exit 1 ;\
+	    somevar=$$(find . -not -path '*/\.*' -not -name '*zz_generated*.go' -name '*.go' -exec goimports -l {} \); echo "${somevar}" ; exit 1 ;\
 	  fi ;\
 
 .PHONY: vet

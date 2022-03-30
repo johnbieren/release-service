@@ -10,7 +10,7 @@ jobs:
     name: Check sources
     runs-on: ubuntu-20.04
     env:
-      OPERATOR_SDK_VERSION: v1.12.0
+      OPERATOR_SDK_VERSION: v1.18.0
     steps:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
@@ -72,9 +72,8 @@ jobs:
           install-go: false
       - name: Check manifests
         run: |
-          # Note: fmt is necessary after generate since generated sources will
-          #       fail format check by default.
-          make generate fmt manifests
+          ldd --version
+          make generate manifests
           if [[ ! -z $(git status -s) ]]
           then
             echo "generated sources are not up to date:"
@@ -84,8 +83,6 @@ jobs:
       - name: Run Go Tests
         run: |
           make test
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2.1.0
   docker:
     name: Check docker build
     runs-on: ubuntu-latest

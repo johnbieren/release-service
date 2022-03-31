@@ -29,6 +29,8 @@ jobs:
         with:
           path: ~/cache
           key: operator-sdk-${{ env.OPERATOR_SDK_VERSION }}
+      - name: Download fedora environment dependencies # Would be nice to cache this somehow
+        run: sudo dnf -y install diffutils findutils gcc wget
       - name: Download Operator SDK ${{ env.OPERATOR_SDK_VERSION }}
         if: steps.cache-operator-sdk.outputs.cache-hit != 'true'
         run: |

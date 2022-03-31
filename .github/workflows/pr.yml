@@ -57,6 +57,7 @@ jobs:
           go mod tidy
           if [[ $(find . -type f -newermt "$time_before") ]]
           then
+            git status | grep -v .git/
             echo "Go mod state is not clean:"
             find . -type f -newermt "$time_before"
             exit 1

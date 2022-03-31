@@ -9,6 +9,7 @@ jobs:
   go:
     name: Check sources
     runs-on: ubuntu-20.04
+    container: fedora:35
     env:
       OPERATOR_SDK_VERSION: v1.18.0
     steps:
@@ -26,6 +27,8 @@ jobs:
         with:
           path: ~/cache
           key: operator-sdk-${{ env.OPERATOR_SDK_VERSION }}
+      - name: Download fedora environment dependencies # Would be nice to cache this somehow
+        run: sudo dnf -y install wget gcc git
       - name: Download Operator SDK ${{ env.OPERATOR_SDK_VERSION }}
         if: steps.cache-operator-sdk.outputs.cache-hit != 'true'
         run: |
@@ -50,21 +53,24 @@ jobs:
         if: steps.cache-mod.outputs.cache-hit != 'true'
       - name: Check go mod status
         run: |
+          time_before=$(date "+%F %T")
           go mod tidy
-          if [[ ! -z $(git status -s) ]]
+          if [[ $(find . -type f -newermt "$time_before") ]]
           then
             echo "Go mod state is not clean:"
-            git --no-pager diff
+            find . -type f -newermt "$time_before"
             exit 1
           fi
       - name: Check format
         run: |
-          unformatted_files=$(gofmt -l .)
-          if [[ $unformatted_files != "" ]] ; then
-              echo "Some files are not properly formatted."
-              echo "${unformatted_files}"
-              echo "Please run `go fmt` and amend your commit."
-              exit 1
+          time_before=$(date "+%F %T")
+          make fmt
+          if [[ $(find . -type f -newermt "$time_before") ]]
+          then
+            echo "Some files are not properly formatted."
+            echo "Please run `go fmt` and amend your commit."
+            find . -type f -newermt "$time_before"
+            exit 1
           fi
       - uses: dominikh/staticcheck-action@v1.1.0
         with:
@@ -73,11 +79,12 @@ jobs:
       - name: Check manifests
         run: |
           ldd --version
+          time_before=$(date "+%F %T")
           make generate manifests
-          if [[ ! -z $(git status -s) ]]
+          if [[ $(find . -type f -newermt "$time_before") ]]
           then
             echo "generated sources are not up to date:"
-            git --no-pager diff
+            find . -type f -newermt "$time_before"
             exit 1
           fi
       - name: Run Go Tests

@@ -106,15 +106,13 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Install gitlint into container
         run: python -m pip install gitlint
-      #- name: Get all branches
-      #  run: git fetch --all
-      #- name: List commits
-      #  run: cat .git/config ; git rev-list main..HEAD
+      - name: git rev
+        run: git rev-list origin/${{ github.event.pull_request.base.ref }}..HEAD
       - name: Run gitlint check
         shell: bash
-        run: |
-          git log
-          gitlint --config .gitlint --contrib contrib-title-conventional-commits,CC1
-          echo $?
+        run: gitlint --config .gitlint --contrib contrib-title-conventional-commits,CC1 --commits origin/${{ github.event.pull_request.base.ref }}..HEAD

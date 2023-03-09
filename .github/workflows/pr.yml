@@ -75,6 +75,10 @@ jobs:
         with:
           version: "2022.1"
           install-go: false
+      - name: Scan for Vulnerabilities in Code
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
       - name: Check manifests
         run: |
           make generate manifests

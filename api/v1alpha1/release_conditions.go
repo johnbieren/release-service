@@ -36,8 +36,10 @@ const (
 	AttemptFailureErrorReason = "Error"
 	// AttemptFailureOOMKillReason is the reason set when an attempt fails due to OOM kill
 	AttemptFailureOOMKillReason = "OOMKill"
-	// AttemptFailureTimeoutReason is the reason set when an attempt fails due to timeout
-	AttemptFailureTimeoutReason = "Timeout"
+	// AttemptFailurePipelineRunTimeoutReason is the reason set when an attempt fails due to PipelineRun timeout
+	AttemptFailurePipelineRunTimeoutReason = "PipelineRunTimeout"
+	// AttemptFailureTaskRunTimeoutReason is the reason set when an attempt fails due to TaskRun timeout
+	AttemptFailureTaskRunTimeoutReason = "TaskRunTimeout"
 )
 
 const (

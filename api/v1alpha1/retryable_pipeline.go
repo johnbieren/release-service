@@ -72,8 +72,20 @@ type MemoryMitigation struct {
 	MaxComputeResources *corev1.ResourceRequirements `json:"maxComputeResources,omitempty"`
 }
 
-// TimeoutMitigation defines how timeout limits should be adjusted on a retry.
+// TimeoutMitigation defines how timeout limits should be adjusted on a retry for both PipelineRun
+// and TaskRun timeouts.
 type TimeoutMitigation struct {
+	// Pipeline defines the timeout adjustment for PipelineRun timeouts.
+	// +optional
+	Pipeline *TimeoutIncrement `json:"pipeline,omitempty"`
+
+	// Task defines the timeout adjustment for TaskRun timeouts.
+	// +optional
+	Task *TimeoutIncrement `json:"task,omitempty"`
+}
+
+// TimeoutIncrement defines the increment and total maximum time allowed for timeout.
+type TimeoutIncrement struct {
 	// Increment is the duration to add to the timeout on each retry.
 	// +required
 	Increment metav1.Duration `json:"increment"`

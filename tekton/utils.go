@@ -84,3 +84,95 @@ func IsPipelineRunDone(pipelineRun *tektonv1.PipelineRun) bool {
 	}
 	return pipelineRun.IsDone() || pipelineRun.GetDeletionTimestamp() != nil
 }
+
+// PipelineRunFailureInfo defines the failure details extracted from a PipelineRun.
+type PipelineRunFailureInfo struct {
+	TaskName             string
+	StepName             string
+	SuccessfulTasks      int
+	IsPipelineRunTimeout bool
+	IsTaskRunTimeout     bool
+	IsOOMKill            bool
+}
+
+// GetPipelineRunFailureInfo returns the failure details from a failed PipelineRun and its child TaskRuns.
+func GetPipelineRunFailureInfo(pipelineRun *tektonv1.PipelineRun, taskRuns []tektonv1.TaskRun) *PipelineRunFailureInfo {
+	if pipelineRun == nil {
+		return &PipelineRunFailureInfo{}
+	}
+
+	info := &PipelineRunFailureInfo{
+		IsPipelineRunTimeout: isPipelineRunTimedOut(pipelineRun),
+	}
+
+	taskName, taskRun, successfulTasks := getFailedTaskRun(pipelineRun, taskRuns)
+	info.TaskName = taskName
+	info.SuccessfulTasks = successfulTasks
+
+	if taskRun == nil {
+		return info
+	}
+
+	info.IsTaskRunTimeout = isTaskRunTimedOut(taskRun)
+
+	for _, step := range taskRun.Status.Steps {
+		if step.Terminated != nil && step.Terminated.ExitCode != 0 {
+			info.StepName = step.Name
+			info.IsOOMKill = step.Terminated.Reason == "OOMKilled"
+			break
+		}
+	}
+
+	return info
+}
+
+// isPipelineRunTimedOut checks whether the PipelineRun failed due to PipelineRun timeout.
+func isPipelineRunTimedOut(pipelineRun *tektonv1.PipelineRun) bool {
+	condition := pipelineRun.Status.GetCondition(apis.ConditionSucceeded)
+	return condition != nil && condition.IsFalse() &&
+		condition.Reason == tektonv1.PipelineRunReasonTimedOut.String()
+}
+
+// isTaskRunTimedOut checks whether the TaskRun failed due to TaskRun timeout.
+func isTaskRunTimedOut(taskRun *tektonv1.TaskRun) bool {
+	condition := taskRun.Status.GetCondition(apis.ConditionSucceeded)
+	return condition != nil && condition.IsFalse() &&
+		condition.Reason == tektonv1.TaskRunReasonTimedOut.String()
+}
+
+// getFailedTaskRun returns the first failed TaskRun from the PipelineRun's child references,
+// its pipeline task name, and the count of successful tasks.
+func getFailedTaskRun(pipelineRun *tektonv1.PipelineRun, taskRuns []tektonv1.TaskRun) (taskName string, failedTaskRun *tektonv1.TaskRun, successfulTasks int) {
+	taskRunMap := make(map[string]*tektonv1.TaskRun, len(taskRuns))
+	for i := range taskRuns {
+		taskRunMap[taskRuns[i].Name] = &taskRuns[i]
+	}
+
+	for _, childRef := range pipelineRun.Status.ChildReferences {
+		// Skip non TaskRun children. Kind may be empty when unset so treat that as a TaskRun.
+		if childRef.Kind != "" && childRef.Kind != "TaskRun" {
+			continue
+		}
+
+		taskRun, exists := taskRunMap[childRef.Name]
+		if !exists {
+			continue
+		}
+
+		condition := taskRun.Status.GetCondition(apis.ConditionSucceeded)
+		if condition == nil {
+			continue
+		}
+
+		if condition.IsTrue() {
+			successfulTasks++
+			continue
+		}
+
+		if condition.IsFalse() {
+			return childRef.PipelineTaskName, taskRun, successfulTasks
+		}
+	}
+
+	return "", nil, successfulTasks
+}

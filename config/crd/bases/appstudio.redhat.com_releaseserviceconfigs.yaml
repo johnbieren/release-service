@@ -204,16 +204,36 @@ spec:
                               description: Timeout defines adjustment for timeout
                                 failures.
                               properties:
-                                increment:
-                                  description: Increment is the duration to add to
-                                    the timeout on each retry.
-                                  type: string
-                                maxTimeout:
-                                  description: MaxTimeout is the maximum time allowed
-                                    across retries.
-                                  type: string
-                              required:
-                              - increment
+                                pipeline:
+                                  description: Pipeline defines the timeout adjustment
+                                    for PipelineRun timeouts.
+                                  properties:
+                                    increment:
+                                      description: Increment is the duration to add
+                                        to the timeout on each retry.
+                                      type: string
+                                    maxTimeout:
+                                      description: MaxTimeout is the maximum time
+                                        allowed across retries.
+                                      type: string
+                                  required:
+                                  - increment
+                                  type: object
+                                task:
+                                  description: Task defines the timeout adjustment
+                                    for TaskRun timeouts.
+                                  properties:
+                                    increment:
+                                      description: Increment is the duration to add
+                                        to the timeout on each retry.
+                                      type: string
+                                    maxTimeout:
+                                      description: MaxTimeout is the maximum time
+                                        allowed across retries.
+                                      type: string
+                                  required:
+                                  - increment
+                                  type: object
                               type: object
                           type: object
                       required:
